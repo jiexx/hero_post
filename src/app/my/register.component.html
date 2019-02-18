@@ -1,0 +1,56 @@
+<div class="container">
+    <div class="card m-3" >
+
+        <div class="card-header">
+            为保证及时发货,请正确填写个人信息 
+        </div>
+        <div class="card-body">
+            <comp-phone #phone [(mobile)]="mobile" [title]="'手机号(必填)'"></comp-phone>
+            
+        </div>
+        <div class="card-header">
+             个人信息
+        </div>
+        <div class="card-header text-center">
+            <p>个人头像</p>
+            <div class="d-block">
+                <!-- <img [src]="avatar" class="rounded-circle img-thumbnail"> -->
+                <comp-image #image [zoomSize]={w:200,h:200} [imageClass]="'rounded-circle img-thumbnail'" [max]=1 [(images)]="avatar" ></comp-image>
+            </div>
+        </div>
+        <div class="card-body" [formGroup]="profile">
+            <div class="form-group">
+                <label class="form-label">用户名/昵称(必填)</label>
+                <input type="text" class="form-control" formControlName="username" [ngClass]="{'is-invalid': !username.pristine && username.errors }">
+                <ng-container *ngIf="!username.pristine && username.errors">
+                    <div *ngIf="username.errors.required" class="invalid-feedback">用户名为空</div>
+                    <div *ngIf="username.errors.pattern" class="invalid-feedback">用户名只能为汉字,数字和英文字母大小写组合,最少6位,不超过8位</div>        
+                </ng-container>
+            </div>
+            <div class="form-group">
+                <label class="form-label">密码(必填)</label>
+                <input type="text" class="form-control" formControlName="password" [ngClass]="{'is-invalid': !password.pristine && password.errors }">
+                <ng-container *ngIf="!password.pristine && password.errors">
+                    <div *ngIf="password.errors.required" class="invalid-feedback">密码为空</div>
+                    <div *ngIf="password.errors.pattern" class="invalid-feedback">密码只能为数字和英文字母大小写组合,最少6位,不超过8位</div>        
+                </ng-container>
+            </div>
+            <div class="form-group">
+                <label class="form-label">邮寄地址(必填)</label>
+                <input type="text" class="form-control" formControlName="address" [ngClass]="{'is-invalid': !address.pristine && address.errors }">
+                <ng-container *ngIf="!address.pristine && address.errors">
+                    <div *ngIf="address.errors.required" class="invalid-feedback">地址为空</div>
+                    <div *ngIf="address.errors.pattern" class="invalid-feedback">密码只能为数字和汉字组合,最少8位,不超过32位</div>        
+                </ng-container>
+            </div>
+            <div class="form-row">
+                <div class="text-center btn btn-light col" (click)="onCancel()">
+                        <i class="fa fa-save"></i>暂不购买,以后再说
+                </div>
+                <div class="text-center btn btn-warning col" (click)="onSave()">
+                        <i class="fa fa-save"></i>保存
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

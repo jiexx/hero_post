@@ -1,0 +1,34 @@
+<div class="container">
+    <div class="card "  >
+        <div class="card-header text-center">
+            <div class="d-block">
+                <img [src]="profile.AVATAR" width="200" height="200" class="rounded-circle img-thumbnail">
+                <!-- <comp-image [zoomSize]={w:200,h:200} [imageClass]="'rounded-circle img-thumbnail'" [max]=1 [images]="[profile.AVATAR]" ></comp-image> -->
+            </div>
+            <p>{{profile.USERNAME}}</p>
+        </div>
+        <div class="card-body"  >
+            <div class="form-row">
+                <div class="text-center col" >
+                    <p class="alert alert-light m-0 p-0"><em class="glyphicon glyphicon-piggy-bank"></em>&nbsp;账户红包</p>
+                    <p class="h3 text-danger">{{avialable}}</p>
+                </div>
+                <div class="text-center col" >
+                    <p class="alert alert-light m-0 p-0"><em class="glyphicon glyphicon-share-alt"></em>&nbsp;我的推荐</p>
+                    <p class="h3 text-danger">{{nforward}}</p>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="text-center col" >
+                    <p class="alert alert-light m-0 p-0"><em class="glyphicon glyphicon-envelope"></em>&nbsp;邮寄地址</p>
+                    <p>{{profile.ADDRESS}}</p>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="text-center col btn btn-warning" routerLink="/register">
+                    <i class="fa fa-save"></i>修改
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

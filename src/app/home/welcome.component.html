@@ -1,0 +1,38 @@
+<div class="text-center border-bottom bg-light">
+    <p class="h1 p-5"> </p>
+    <p class="h2"><b>英雄帖</b>，快生活</p>
+    <p class="small">————你我交情岂能是廉价JPG？梦想、生活、态度承载品质</p>
+    <p class="h1 p-5"> </p>
+</div>
+<div class="container">
+    <br>
+    <p class="border-bottom font-weight-light h3 text-black-50">
+        请帖
+    </p>
+    <div class="row flex-row flex-nowrap" id="test" style="overflow-x: auto;" (mousemove)="mouseMove($event)" (touchmove)="mouseMove($event)" >
+        <div class="col-2" *ngFor="let f of food"><img [src]="f" class="img-thumbnail" (click)="onSelect(f)"></div>
+    </div>
+    <p class="border-bottom font-weight-light h3 text-black-50">
+        生活
+    </p>
+    <div class="row flex-row flex-nowrap" style="overflow-x: auto;" (mousemove)="mouseMove($event)" (touchmove)="mouseMove($event)">
+        <div class="col-2" *ngFor="let f of life"><img [src]="f" class="img-thumbnail" ></div>
+    </div>
+    <div class="p-3 text-center">
+        <!-- <tabset>
+            <tab heading="沪A" (select)="onSelect($event)"></tab>
+            <tab heading="深B" (select)="onSelect($event)"></tab>
+            <tab heading="港股" (select)="onSelect($event)"></tab>
+        </tabset> -->
+        <!-- <ngx-select *ngIf="companies && companies.length > 0" [items]="companies"
+                optionValueField="COMPANY_CODE "
+                optionTextField="COMPANY_ABBR"
+                [allowClear]="true"
+                [defaultValue]="dCompany"
+                (select)="onSelect($event)">
+        </ngx-select> -->
+    </div>
+</div>
+<footer class="position-relative border-top p-3 text-center bg-light "> <!--[style.visibility]="authGuard.loaded ? 'visible' : 'hidden'"> -->
+    <p class=" small m-auto  ">手写签名，作为密码认证，不以手机号认证，骚扰电话太多，不泄露用户隐私，请联系<a href="mailto:showmemoney.cc@outlook.com?Subject=建议" target="_top">showmemoney.cc@outlook.com</a></p>
+</footer>

@@ -1,0 +1,30 @@
+<div class="border-top ">
+    <div class="container">
+        <br>
+        <p class="border-bottom font-weight-light h3 text-black-50">
+            第一步<span class="h6">编辑自己喜好式样</span>
+        </p>
+        <div class="row justify-content-center align-items-center" >
+            <div class="p-2 position-relative" >
+                <div class="h-100 w-100 position-absolute" (mouseenter) ="show = !show"  (mouseleave) ="show = !show">
+                    <div class="row h-100 justify-content-center align-items-center ">
+                        <a href="javascript:void(0)" (click)="onEdit()" *ngIf="show" [@enterAnimation]><span class="glyphicon-ring" ><em class="glyphicon glyphicon-pencil glyphicon-bordered" ></em></span></a>
+                    </div>
+                </div>
+                <img [src]="cover" class="img-thumbnail" style="height:300px"/>
+            </div>
+            <div class="p-2" *ngFor="let l of letter"><img [src]="l" class="img-thumbnail" style="height:300px" /></div>
+        </div>
+        <p class="border-bottom font-weight-light h3 text-black-50">
+            第二步<span class="h6">回车邀请朋友</span>
+        </p>
+        <tag-input [ngModel]="names" placeholder="姓名" secondaryPlaceholder="姓名" [editable]='true' (onRemove)="onNameRemove($event)"  (onAdd)="onNameAdd($event)" ></tag-input>
+        <div class="border-bottom font-weight-light h3 text-black-50 pt-5">
+            第三步<span class="h6">
+                <em [ngClass]="{'text-primary glyphicon-check':selected=='mail', 'glyphicon-unchecked':selected!='mail'}" class="glyphicon glyphicon-unchecked pl-3" (click)="onSelect()"></em>线下邮寄
+                <em [ngClass]="{'text-primary glyphicon-check':selected=='ecard', 'glyphicon-unchecked':selected!='ecard'}" (click)="onSelect()" class="glyphicon glyphicon-unchecked pl-3"></em>电子卡片</span>
+        </div>
+        <p></p>
+        <button type="button" class="btn btn-light btn-block"><span class="font-weight-light h3 text-black-50">确认</span></button>
+    </div>
+</div>

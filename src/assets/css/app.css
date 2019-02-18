@@ -1,0 +1,59 @@
+
+
+
+* {
+/* font-size: 0.9rem  !important; */
+}
+html{
+    height:100%;
+}
+
+body {
+ background-color: #fff;
+ font-family: "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Source Han Sans CN", Roboto, "Microsoft YaHei", sans-serif;
+ height:100%;
+ font-size: 0.9em
+}
+
+/**CSS FOR THE RING**/
+
+.glyphicon-ring {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 4px solid white;
+    color: white;
+    display: inline-table;
+    text-align: center;
+}
+/**CSS FOR ICON WITH NO BACKGROUND COLOR**/
+  
+.glyphicon-ring .glyphicon-bordered {
+    font-size: 20px;
+    vertical-align: middle;
+    display: table-cell;
+}
+/**WITH AN ADDED BACKGROUND COLOR**/
+  
+.glyphicon-white {
+    background: white;
+    color: black;
+    border: 4px solid black;
+}
+.glyphicon-teal {
+    background: lightslategray;
+    color: transparent;
+    border: 4px solid transparent;
+  }
+.glyphicon-red {
+    background: red;
+}
+
+.container {
+    -ms-overflow-style: none; 
+}
+
+::-webkit-scrollbar {
+    width: 0px; 
+    background: transparent;
+}
