@@ -15,7 +15,7 @@
             <p>个人头像</p>
             <div class="d-block">
                 <!-- <img [src]="avatar" class="rounded-circle img-thumbnail"> -->
-                <comp-image #image [zoomSize]={w:200,h:200} [imageClass]="'rounded-circle img-thumbnail'" [max]=1 [(images)]="avatar" ></comp-image>
+                <comp-image #image [zoomSize]={w:200,h:200}  [imageClass]="'rounded-circle img-thumbnail'" [max]=1 [(images)]="avatar" ></comp-image>
             </div>
         </div>
         <div class="card-body" [formGroup]="profile">

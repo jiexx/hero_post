@@ -2,6 +2,7 @@
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-body text-center">
+                <img [src]="img" *ngIf="img != null">
                 <p>{{info}}</p>
                 <button type="button" class="btn btn-default" (click)="confirm()">确定</button>
                 <button type="button" class="btn btn-primary" (click)="decline()" *ngIf="fnDecline">取消</button>

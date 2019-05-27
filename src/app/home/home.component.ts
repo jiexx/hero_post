@@ -7,7 +7,20 @@ import { ProfileComponent } from '../my/profile.component';
 import { AuthGuard } from '../_helper/auth.guard';
 import { DclWrapperMessage } from '../_service/dclwrapper.message';
 import { WelcomeComponent } from './welcome.component';
-import { Router } from '@angular/router';
+import { Router, ActivatedRouteSnapshot, ActivatedRoute } from '@angular/router';
+/* import { PosterComponent } from '../h.poster/poster.component';
+import { EditorComponent } from '../h.poster/editor.component'; */
+import { ProductComponent } from '../h.poster/product.component';
+
+class Trigger {
+  triggers: any[];
+  constructor(triggers: any[]){
+    this.triggers = triggers
+  }
+  handle(route: Router, authGuard: AuthGuard, content: DclWrapper){
+    
+  }
+}
 
 class exitClick implements OnMenuClick {
 
@@ -25,22 +38,36 @@ export class HomeComponent implements OnInit {
 
   menuFactory: MenuFactory;
 
-  constructor(private busService: BusService, public authGuard: AuthGuard, private router: Router) {
+  triggers: any;
+
+  constructor(private busService: BusService, private authGuard: AuthGuard, private route: Router, private activatedRoute: ActivatedRoute, private location: Location) {
     
   }
   ngOnInit(){
-    //console.log('home');
-    this.menuFactory = new MenuFactory(this.busService, this.content);
+    this.menuFactory = new MenuFactory(this.authGuard, this.content);
     this.menuFactory.createMenu(ProfileComponent, null, this.authGuard.profile.AVATAR);
     this.menuFactory.createMenu(null, '返回', null, new exitClick(this));
-    this.busService.receive(this,msg => {
-      this.authGuard.loadComponentAfterToken(new DclWrapperMessage(this.content, this.content, msg.component,null));
-    })
-    this.home();
+
+    this.triggers = {
+      /* 'poster': PosterComponent, */
+      'product':ProductComponent,
+      /* 'editor': EditorComponent, */
+      'home': WelcomeComponent,
+    }
+
+    if(this.triggers[this.activatedRoute.snapshot.url[0].path]){
+      this.authGuard.loadComponentAfterToken(
+        new DclWrapperMessage(this.content, this.content, this.triggers[this.activatedRoute.snapshot.url[0].path],this.activatedRoute.snapshot.queryParams)
+      );
+    }
+    this.location.go('');
   }
 
   home(){
-    this.authGuard.loadComponentAfterToken(new DclWrapperMessage(this.content, this.content, WelcomeComponent,null));
+    //this.route.navigate(['/home'], {queryParams: {}});
+    this.authGuard.loadComponentAfterToken(
+      new DclWrapperMessage(this.content, this.content, this.triggers['home'],this.activatedRoute.snapshot.queryParams)
+    );
   }
 
 }

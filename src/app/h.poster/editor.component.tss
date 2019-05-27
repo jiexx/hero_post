@@ -1,0 +1,313 @@
+import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, AfterContentChecked } from '@angular/core';
+
+
+import { DclComponent } from '../_helper/dcl.component';
+import { RenderableManager } from './renderable';
+import { ImageComponent } from '../_helper/image.component';
+import { HttpRequest } from '../_helper/http.request';
+import { DialogMessage } from '../_service/dialog.message';
+import { BusService } from '../_service/bus.service';
+import { DialogComponent } from '../_helper/dialog.component';
+import { Router } from '@angular/router';
+import { PosterManager } from './poster.manager';
+
+class ToolBar {
+  m: any;
+
+  active(name: string){
+    if(name == 'Text') this.m.text.click();
+    else if(name == 'Image') this.m.image.click();
+    else if(name == 'Line') this.m.line.click();
+  }
+
+  _init(r: any){
+    for(var i in r){
+      this._init(r[i]);
+      r[i]['click'] =((r, i) => { return () => {
+        r.selected = r[i];
+      }; })(r, i);
+      r[i]['visible'] = ((r, i) => { return (name) => {
+        return !name ? (r.selected == r[i]) : name == i;
+      }; })(r, i);
+      if(!r['selected']){
+        r['selected'] = r[i];
+      }
+    }
+  }
+
+  constructor(){
+    this.m = {
+        text: {
+          font:{}, 
+          weight:{},
+          color:{}, 
+          opacity:{}, 
+          align:{}
+        },
+        image: {
+          open:{}, 
+          color:{}, 
+          opacity:{}, 
+          align:{}
+        }, 
+        line: {
+          weight:{},
+          color:{}, 
+          opacity:{}, 
+          align:{}
+        },
+        background: {
+          none:{}
+        }
+    };
+    this._init(this.m);
+    this.m.text.click();
+  }
+}
+
+
+
+@Component({
+  templateUrl: './editor.component.html',
+  //   styleUrls: ['./app.component.css']
+})
+
+export class EditorComponent implements OnInit, DclComponent, AfterContentChecked {
+
+
+  photoes: string[] = [];
+
+  renderManager: RenderableManager;
+  onPhotoSelected: Function = null;
+
+  toolbar: ToolBar = new ToolBar();
+  constructor(private hr: HttpRequest,private busService: BusService,private cdr: ChangeDetectorRef, private route: Router){
+    
+    this.onPhotoSelected = (data: any) => {
+      if(data.indexOf('base64,')>1){
+        if(this.toolbar.m.background.visible()) this.renderManager.setBackgroundImage(data);
+        else this.renderManager.addImage(data, null,null,64);
+      }else {
+        this.hr.post(this.hr.mediaPathFromPatternUrl(data),{}, result => {
+          if(this.toolbar.m.background.visible()) this.renderManager.setBackgroundImage(result.data);
+          else this.renderManager.addImage(result.data, null,null,64);
+        });
+      }
+    }
+  }
+  ngAfterContentChecked(){
+    this.cdr.detectChanges();
+  }
+  ngOnInit() {
+    this.renderManager = new RenderableManager(600, 900);
+    this.renderManager.load(PosterManager.getPosterJSON(this.posterNum));
+  }
+  save(){
+    var that = this;
+    this.busService.send(new DialogMessage(this, DialogComponent, '保存当前编辑?',
+      ()=>{
+        PosterManager.savePosterJSON(that.posterNum, JSON.stringify(that.renderManager.toJSON()));
+        PosterManager.savePosterSVG(that.posterNum, that.renderManager.toSVG());
+        if(that.cover){
+          PosterManager.savePosterPNG(that.posterNum, that.renderManager.toPNG());
+        }
+        that.route.navigate(['/poster'], {queryParams: {id: PosterManager.getPosterID(that.posterNum), num:that.num, edited:true}});
+      },
+      ()=>{
+
+      }));
+  }
+  posterNum: string;
+  num: number;
+  cover: boolean;
+  load(d: any) {
+    this.posterNum = d.id;
+    this.num = d.num;
+    this.cover = d.cover;
+  }
+  addText(){
+    this.toolbar.m.text.click();
+    this.renderManager.addText();
+  }
+  addPhoto(){
+    this.toolbar.m.image.click();
+    this.hr.post('files/list/i',{}, result => {
+      this.photoes = [];
+      for(var i in result.data){
+        this.photoes.push(this.hr.mediaUrlFromResourceId(result.data[i]));
+      }
+    });
+  }
+  addLine(){
+    this.toolbar.m.line.click();
+    this.renderManager.addLine();
+  }
+  addBackground(){
+    if(!this.toolbar.m.background.visible()){
+      this.toolbar.m.background.click();
+      this.hr.post('files/list/h',{}, result => {
+        this.photoes = [];
+        for(var i in result.data){
+          this.photoes.push(this.hr.mediaUrlFromPatternId(result.data[i]));
+        }
+      });
+    }else {
+      this.toolbar.m.text.click();
+    }
+  }
+  remove(){
+    if(!this.renderManager.removeActive()){
+      if(!this.selectedRenderable && this.renderManager.getRenderableList().length == 1) {
+        this.selectedRenderable = this.renderManager.getRenderableList()[0].id;
+      }
+      this.renderManager.removeSelectedRenderable(this.selectedRenderable);
+    }
+  }
+  top(){
+    this.renderManager.top();
+  }
+  
+  selected(){
+    let select = this.renderManager.getActiveRenderable();
+    if(select){
+      this.toolbar.active(select.constructor.name);
+      return true;
+    }
+    return false;
+  }
+  private _selectedRenderable: any = null;
+  get selectedRenderable(){
+    if(this.renderManager.getActiveRenderable()) {
+      this._selectedRenderable = this.renderManager.getActiveRenderable().id;
+    }
+    return this._selectedRenderable;
+  }
+  set selectedRenderable(value: number){
+    this._selectedRenderable = value;
+    this.renderManager.setActiveRenderable(value);
+  }
+  onSelect() {
+    this.renderManager.setActiveRenderable(this.selectedRenderable);
+  }
+  
+  private _weight: number;
+  get weight(){
+    let fontWeight = this.renderManager.getActiveStyle().fontWeight ;
+    this._weight = '0123456789'.indexOf(fontWeight) !== -1 ? fontWeight : 400;
+    return this._weight / 10;
+  }
+  set weight(value: number){
+    this._weight = value * 10;
+    this.renderManager.setActiveStyle('fontWeight', this._weight);
+  }
+  private _opacity: number;
+  get opacity(){
+    this._opacity = this.renderManager.getActiveStyle().opacity ? this.renderManager.getActiveStyle().opacity : 0;
+    return this._opacity * 100;
+  }
+  set opacity(value: number){
+    this._opacity = value / 100;
+    if(this.toolbar.m.background.visible()) this.renderManager.setBackgourndImageTransparancy(this._opacity);
+    else this.renderManager.setActiveStyle('opacity', this._opacity);
+  }
+  private _color: string ='#0000ff';
+  get color(){
+    this._color = this.renderManager.getActiveStyle().fill ? this.renderManager.getActiveStyle().fill : this._color;
+    return this._color;
+  }
+  set color(value: string){
+    this._color = value;
+    if(this.toolbar.m.background.visible()) this.renderManager.setBackgourndImageColor(value);
+    else this.renderManager.setActiveStyle('fill', value);
+  }
+  private _bgColor: string ='#0000ff';
+  get bgColor(){
+    this._bgColor = this.renderManager.getActiveStyle().fill ? this.renderManager.getActiveStyle().fill : this._bgColor;
+    return this._bgColor;
+  }
+  set bgColor(value: string){
+    this._bgColor = value;
+    this.renderManager.setBackgourndColor(value);
+  }
+  private _font: string;
+  get font(){
+    this._font = this.renderManager.getActiveStyle().fontFamily ? this.renderManager.getActiveStyle().fontFamily : 'sans-serif';
+    return this._font;
+  }
+  set font(value: string){
+    this._font = value;
+    if(value=='oyang'){
+      this.charToImage();
+    }else if(value=='sf'){
+      this.caliToImage({});
+    }else if(value=='sf-ks'){
+      this.caliToImage({ftype:'ks',rand:true});
+    }else if(value=='sf-xs'){
+      this.caliToImage({ftype:'xs',rand:true});
+    }else{
+      this.renderManager.setActiveStyle('fontFamily', value);
+    }
+  }
+  private _size: number;
+  get size(){
+    this._size = this.renderManager.getBackgourndImageSize();
+    return this._size * 100;
+  }
+  set size(value: number){
+    this._size = (value / 100);
+    this.renderManager.setBackgourndImageSize(this._size);
+  }
+  caliToImage(params: any){
+    let text = this.renderManager.getActiveText();
+    this.renderManager.beginLayout(64);
+    for(var i = 0; i < text.length ; i ++){
+      ((i)=>{this.hr.post(this.hr.mediaPathFromCaliId(text[i].charCodeAt(0)),params, result => {
+        let {x,y} =this.renderManager.nextLayout(i);
+        this.renderManager.addImage(result.data, y, x, 64);
+      })})(i);
+    }
+  }
+  charToImage(){
+    let text = this.renderManager.getActiveText();
+    for(var i in text){
+      this.hr.post(this.hr.mediaPathFromCharId(text[i].charCodeAt(0)),{}, result => {
+        this.renderManager.addImage(result.data, null,null,64);
+      });
+    }
+  }
+
+  onBold(){
+    let value = this.renderManager.getActiveStyle().fontWeight ? '': 'bold';
+    this.renderManager.setActiveStyle('fontWeight', value);
+  }
+
+  onItalic(){
+    let value = this.renderManager.getActiveStyle().fontStyle ? '': 'italic';
+    this.renderManager.setActiveStyle('fontStyle', value);
+  }
+  vTypeset(){
+    this.renderManager.vTypeset();
+  }
+  hTypeset(){
+    this.renderManager.hTypeset();
+  }
+  alignLeft(){
+    this.renderManager.alignLeft();
+  }
+  alignCenter(){
+    this.renderManager.alignHCenter();
+  }
+  alignRight(){
+    this.renderManager.alignRight();
+  }
+  justify(){
+    this.renderManager.alignHCenter();
+    this.renderManager.alignVCenter();
+  }
+  expand(){
+    this.renderManager.stretch();
+  }
+  restore(){
+    this.renderManager.shrink();
+  }
+}

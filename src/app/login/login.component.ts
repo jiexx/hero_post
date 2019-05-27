@@ -1,104 +1,79 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ValidationErrors, FormControl } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthGuard } from '../_helper/auth.guard';
 import { BusService } from '../_service/bus.service';
 import { AuthMessage } from '../_service/auth.message';
 import { DomSanitizer } from '@angular/platform-browser';
+import { DclComponent } from '../_helper/dcl.component';
+import { HttpRequest } from '../_helper/http.request';
+import { DialogMessage } from '../_service/dialog.message';
+import { DialogComponent } from '../_helper/dialog.component';
+import { DclWrapperMessage } from '../_service/dclwrapper.message';
 
 @Component({templateUrl: 'login.component.html'})
-export class LoginComponent implements OnInit, AfterViewInit {
+export class LoginComponent implements OnInit, AfterViewInit, DclComponent {
     loginForm: FormGroup;
     loading = false;
-    returnUrl: string;
-    captcha: any = '';
-    fcase = 2;
-
-    protected httpOptions: any = {
-        headers: new HttpHeaders({
-          'Content-Type':  'application/json',
-        })
-    }
+    tel: FormControl = new FormControl('', [Validators.required,Validators.pattern(/^((13[0-9])|(15[^4])|(18[0-9])|(17[0-9])|(147))\d{8}$/)] );
+    code: FormControl = new FormControl('',[Validators.required,Validators.pattern(/^\d{4}$/)]);
 
     constructor(
         private formBuilder: FormBuilder,
-        private route: ActivatedRoute,
-        private router: Router,
-        private busService: BusService,
-        private sanitizer: DomSanitizer) {}
+        private busService: BusService, 
+        private auth: AuthGuard)
+         {}
 
     ngOnInit() {
         this.loginForm = this.formBuilder.group({
-            username: [''/*, Validators.required*/],
-            password: [''/*, Validators.required*/]
+            tel: this.tel,
+            code: this.code
         });
-
-        
         // reset login status
 
         // get return url from route parameters or default to '/'
-        this.returnUrl = this.route.snapshot.queryParams['returl'];
+        //this.returnUrl = this.route.snapshot.queryParams['returl'];
         
     }
 
     ngAfterViewInit(){
-        if(this.returnUrl) {
-            this.busService.send(new AuthMessage(this, AuthGuard, 'redirect', {returnUrl:this.returnUrl},
-                result => {
-                },
-                error => {
-                    this.fcase = error;
-                }
-            ));
-        } 
-    }
-    // convenience getter for easy access to form fields
-    get f() { return this.loginForm.controls; }
 
-    onRegister(){
-        this.busService.send(new AuthMessage(this, AuthGuard, 'apply', {username:this.loginForm.controls.username.value},
-            result => {
-                this.captcha = this.sanitizer.bypassSecurityTrustUrl(result.data);
-                this.loading = false;
-                this.fcase = 5; 
-            },
-            error => {
-                this.loginForm.controls[error.data].setErrors(error.msg);
-                this.loading = false;
-            }
-        ));
-        this.loading = true;
     }
 
+    err: string = '';
     onLogin() {
-        this.busService.send(new AuthMessage(this, AuthGuard, 'confirm', {username:this.loginForm.controls.username.value,password:this.loginForm.controls.password.value},
-            result => {
-                this.loading = false;
-                if(this.returnUrl) {
-                    this.router.navigate([this.returnUrl]);
-                }
-            },
-            error => {
-                this.loginForm.controls[error.data].setErrors(error.msg);
-                this.loading = false;
-            }
-        ));
-        this.loading = true;
+        this.loginForm.updateValueAndValidity();
+        if (this.loginForm.controls.code.invalid) {
+            this.loginForm.controls.code.markAsDirty();
+            this.err = '请正确填写4位验证码';
+            //this.busService.send(new DialogMessage(this, DialogComponent, '请正确填写4位验证码'));
+            return;
+        }
+        this.auth.login(this.loginForm.getRawValue(), success=>{
+            this.busService.send(this.last);
+        },error => {
+            this.loginForm.get(error.data).setErrors({backend:true})
+            this.err = error.msg;
+        });
     }
     onCheckin(){
-        this.busService.send(new AuthMessage(this, AuthGuard, 'checkin', {username:this.loginForm.controls.username.value},
-            result => {
-                this.loading = false;
-                if(this.returnUrl) {
-                    this.router.navigate([this.returnUrl]);
-                }
-            },
-            error => {
-                this.loginForm.controls[error.data].setErrors(error.msg);
-                this.loading = false;
-            }
-        ));
-        this.loading = true;
+        this.loginForm.updateValueAndValidity();
+        if (this.loginForm.controls.tel.invalid) {
+            this.loginForm.controls.tel.markAsDirty();
+            //this.busService.send(new DialogMessage(this, DialogComponent, '请正确填写11位手机号'));
+            return;
+        }
+        this.auth.checkin(this.loginForm.controls.tel.value, 
+        null, 
+        error => {
+            this.loginForm.get(error.data).setErrors({backend:true})
+            this.err = error.msg;
+        });
+    }
+
+    last: DclWrapperMessage = null
+    load(d: any = null) {
+        this.last = d;
     }
 }

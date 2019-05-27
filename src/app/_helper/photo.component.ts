@@ -4,6 +4,9 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { EventEmitter } from '@angular/core';
 import { ConfigService } from '../app.config';
 import { HttpRequest } from './http.request';
+import { BusService } from '../_service/bus.service';
+import { DialogMessage } from '../_service/dialog.message';
+import { DialogComponent } from './dialog.component';
 
 class Rect {
     r: number;
@@ -36,17 +39,47 @@ class Project {
 
 }
 
+class PageImages {
+    windowStart: number;
+    windowEnd: number;
+    size: number;
+    max: number = 500;
+    constructor(pageSize: number) {
+        this.size = pageSize;
+        this.windowStart = 0;
+        this.windowEnd = pageSize-1;
+    }
+    changeOnImages(images: any[]){
+        this.max = images.length;
+    }
+    next() {
+        if(this.windowEnd < this.max){
+            this.windowStart ++;
+            this.windowEnd ++;
+        }
+    }
+    prev() {
+        if(this.windowStart > 0) {
+            this.windowStart --;
+            this.windowEnd --;
+        }
+    }
+}
+
 
 @Component({
-    selector: 'comp-image',
-    templateUrl: './image.component.html'
+    selector: 'comp-photo',
+    templateUrl: './photo.component.html'
 })
-export class ImageComponent {
+export class PhotoComponent implements OnInit {
     @Input() zoomSize: any = {w:1, h:1};  // style show width
     @Input() max: number = 1; // contain number of picture
+    @Input() pageSize: number = 1; // contain number of picture
 
+    
     @Input() imageClass: number = 0;
-    @Input() onUpload: Function = null; 
+
+    @Input() onSelect: Function = null;
 
     private _images: any[] = [];
     @Input() set images(values: any[]) {
@@ -56,43 +89,44 @@ export class ImageComponent {
                 res.push(this.sanitizer.bypassSecurityTrustResourceUrl(values[i]));
             }else{
                 res.push(values[i]);
+                
             }
         }
         this._images = res;
+        if(this.pageImages)this.pageImages.changeOnImages(this._images);
     }
     get images(): any[] {
         return this._images;
     }
 
+    pageImages: PageImages;
+    fontSize: number;
     constructor(
-        private hr: HttpRequest,
         private ref: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
-        private config: ConfigService
+        private busService: BusService
      ) { 
+         
+         
+    }
+
+    ngOnInit(){
+        this.fontSize = Math.ceil(this.zoomSize.h*0.8);
+        this.pageImages = new PageImages(this.pageSize);
     }
 
 
-    onChange(files, canvas: HTMLCanvasElement){
+    onChange(files){
         if (!files[0] || !files[0].type) return;
-        var that = this;
         for(var i in files) {
           if (files[i] && files[i].type && files[i].type.indexOf('image') > -1) {
+            if(files[i].size > 256000) {
+                this.busService.send(new DialogMessage(this, DialogComponent, '文件不能超过256K'));
+                continue;
+            }
             var reader = new FileReader();
-            reader.onloadend = function (evt:any) {
-                var img = new Image();
-                img.src = evt.target.result;
-                var ctx = canvas.getContext("2d");
-                ctx.fillStyle="#ffffff";
-                canvas.width = that.zoomSize.w;
-                canvas.height = that.zoomSize.h;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                img.onload = function() {
-                    var t = Project.P(img.width, img.height, canvas.width, canvas.height);
-                    ctx.drawImage(img, t.srcX, t.srcY, t.srcW, t.srcH, t.dstX, t.dstY, t.dstW, t.dstH );
-                    that.save(canvas.toDataURL("image/jpeg"));
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                }
+            reader.onloadend = (evt:any) => {
+                this.save(evt.target.result);
             }
             reader.readAsDataURL(files[i]);
           }
@@ -100,17 +134,13 @@ export class ImageComponent {
     }
     @Output() imagesChange:EventEmitter<any> = new EventEmitter();
     save(data:string){
-        this._images.push(data);
+        this._images.unshift(data);
         this.imagesChange.emit(this._images);
         this.ref.detectChanges();
-        this.hr.upload(data, (result) => {
-            this._images.pop();
-            this._images.push(this.config.MEDIA_HOST.URL+result.data);
-            if(this.onUpload) this.onUpload(result.data);
-        });
+        this.pageImages.changeOnImages(this._images);
     }
-    onRemove(index:number){
-        this._images.splice(index,1);
+    onClick(index:number){
+        if(this.onSelect && this.images[index+this.pageImages.windowStart]) this.onSelect(this.images[index+this.pageImages.windowStart]);
     }
 
 }

@@ -7,6 +7,8 @@ import { AuthMessage } from '../_service/auth.message';
 import { AuthGuard } from '../_helper/auth.guard';
 import { DclComponent } from './dcl.component';
 import { DclWrapper } from './dcl.wrapper';
+import { LoginComponent } from '../login/login.component';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 export interface OnMenuClick {
 
@@ -16,13 +18,13 @@ export interface OnMenuClick {
 class OnMenuDefaultClick implements OnMenuClick{
     onClick(menu:Menu){
         if(menu.target){
-            menu.factory.busService.send(new DclWrapperMessage(menu.factory.wrapper, menu.factory.wrapper, menu.target,null));
+            menu.factory.auth.loadComponentAfterLogin(new DclWrapperMessage(menu.factory.wrapper, menu.factory.wrapper, menu.target,null), LoginComponent);
         }
     }
 }
 
 export class MenuFactory {
-    constructor(public busService: BusService,public wrapper: DclWrapper, public menus: Menu[] = []){
+    constructor(public auth: AuthGuard,public wrapper: DclWrapper, public menus: Menu[] = []){
         return this;
     }
     createDropMenu(target: Type<DclComponent>, text: string){
@@ -31,7 +33,7 @@ export class MenuFactory {
         this.menus.push(dm);
         return dm;
     }
-    createMenu(target: Type<DclComponent>, text:string = null, icon: string = null, clicker: OnMenuClick = new OnMenuDefaultClick()){
+    createMenu(target: Type<DclComponent>, text:string = null, icon: SafeResourceUrl = null, clicker: OnMenuClick = new OnMenuDefaultClick()){
         let menu = new Menu(target, text, icon,clicker);
         menu.factory = this;
         this.menus.push(menu);
@@ -39,8 +41,9 @@ export class MenuFactory {
     }
 }
 export class Menu{
+    private sanitizer: DomSanitizer;
     factory: MenuFactory;
-    constructor(public target: Type<DclComponent>, protected text: string = null, protected icon: string = null, protected clicker: OnMenuClick = new OnMenuDefaultClick()){
+    constructor(public target: Type<DclComponent>, protected text: string = null, protected icon: SafeResourceUrl = null, protected clicker: OnMenuClick = new OnMenuDefaultClick()){
         return this;
     }
     onClick(){
@@ -53,8 +56,8 @@ class DropMenu extends Menu{
         super(null, text);
         return this;
     }
-    createMenu(target: Type<DclComponent>, text:string, icon: string){
-        let menu = new Menu(target, text, icon);
+    createMenu(target: Type<DclComponent>, text:string, icon: any){
+        let menu = new Menu(target, text, (icon));
         menu.factory = this.factory;
         this.child.push(menu);
         return menu;

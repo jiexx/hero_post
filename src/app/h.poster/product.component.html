@@ -1,0 +1,19 @@
+<div class="border-top ">
+    <div class="container">
+        <br>
+        <div class="d-flex flex-column justify-content-center align-items-center" >
+            <div class="p-2 position-relative w-50" *ngFor="let p of posterManager.getPosters(); let i = index">
+                <div class="h-100 w-100 position-absolute" (mouseenter) ="posterManager.toggle(i)"  (mouseleave) ="posterManager.toggle(i)">
+                    <div class="row h-100 justify-content-center align-items-center ">
+                        <a href="javascript:void(0)" (click)="onSelect(i)" *ngIf="posterManager.visible(i)" [@enterAnimation]>
+                            <span class="glyphicon-ring" ><em class="glyphicon glyphicon-qrcode glyphicon-bordered" ></em></span>
+                        </a>
+                    </div>
+                </div>
+                <!-- <img [src]="sanitizer.bypassSecurityTrustResourceUrl(p)" class="img-thumbnail" style="width:200px" *ngIf="p.indexOf('!DOCTYPE svg')<0"/> -->
+                <div class="img-thumbnail"  *ngIf="p.indexOf('<svg')<0"></div>
+                <div [innerHTML]="sanitizer.bypassSecurityTrustHtml(p)"class="img-thumbnail"   *ngIf="p.indexOf('<svg')>-1" ></div>
+            </div>
+        </div>
+    </div>
+</div>

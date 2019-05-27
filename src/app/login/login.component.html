@@ -1,68 +1,27 @@
+<style>
+</style>
 <div class="page h-100">
-    <div class="container d-flex justify-content-center h-100">
-        <div class="align-self-center">
-            <div class="row">
-                <!-- Logo & Information Panel-->
-                <div class="col-lg-6 bg-primary d-flex justify-content-center">
-                    <div class="align-self-center">
-                        <div class=" p-3 text-light">
-                            <div class="logo">
-                                <h1>Dashboard</h1>
-                            </div>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Form Panel    -->
-                <div class="col-lg-6 bg-white d-flex justify-content-center ">
-                    <div class="align-self-center">
-                        <form method="post" class="pt-5 pb-5" [formGroup]="loginForm" *ngIf="fcase == 2">
-                            <br><br>
-                            <div class="input-group">
-                                <input type="text" formControlName="username" placeholder="手机号" class="form-control" [ngClass]="{'is-invalid':f.username.errors}">
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="button" (click)="onCheckin()">快速登录</button>
-                                </div>
-                            </div>
-                            <span *ngIf="f.username.errors" class="small text-danger">{{f.username.errors}}</span>
-                            <div class="pt-5 small">
-                                <a href="javascript:void(0);" class="forgot-pass" (click)="fcase = 3">没有账号? 注册</a>
-                            </div>
-                        </form>
-                        <form method="post" class="pt-5 pb-5" [formGroup]="loginForm" *ngIf="fcase == 3">
-                            <br><br>
-                            <div class="input-group">
-                                <input type="text" formControlName="username" placeholder="手机号" class="form-control" [ngClass]="{'is-invalid':f.username.errors}">
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="button" (click)="onRegister()">发送验证码</button>
-                                </div>
-                            </div>
-                            <span *ngIf="f.username.errors" class="small text-danger">{{f.username.errors}}</span>
-                            <div class="pt-5 small">
-                                <a href="javascript:void(0);" class="forgot-pass" (click)="fcase = 2">已有账号? 登录</a>
-                            </div>
-                        </form>
-                        <form method="post" class="pt-5 pb-5" [formGroup]="loginForm" *ngIf="fcase == 5">
-                            <br><br>
-                            <div class="input-group">
-                                <input type="password" formControlName="password" placeholder="输入验证码" class="form-control" [ngClass]="{'is-invalid':f.password.errors}">
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="button" (click)="onLogin()">确认验证码</button>
-                                </div>
-                            </div>
-                            <span *ngIf="f.password.errors" class="small text-danger">{{f.password.errors}}</span>
-                            <div>
-                                <img [src]="captcha" >
-                            </div>
-                            <div class="pt-5 small">
-                                <a href="javascript:void(0);" class="forgot-pass" (click)="fcase = 2">已有账号? 登录</a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
-            />
+    <div class="container" [formGroup]="loginForm">
+        <div *ngIf="tel.pristine">11位手机号</div>
+        <ng-container *ngIf="!tel.pristine && tel.errors">
+            <div *ngIf="tel.errors.required" class="login-err">手机号为空</div>
+            <div *ngIf="tel.errors.pattern" class="login-err">11位手机号不正确</div>  
+            <div *ngIf="err" class="login-err">{{err}}</div>            
+        </ng-container>
+        <div class="login-div" ><input class="login-input" type="tel" size="11" maxlength="11" name="tel" formControlName="tel" [ngClass]="{'login-invalid': !tel.pristine && tel.errors }"></div>
+        <div *ngIf="code.pristine">4位收到的短信验证码</div>
+        <ng-container *ngIf="!code.pristine && code.errors">
+            <div *ngIf="code.errors.required" class="login-err">手机号为空</div>
+            <div *ngIf="code.errors.pattern" class="login-err">11位手机号不正确</div>    
+            <div *ngIf="err" class="login-err">{{err}}</div>      
+        </ng-container>
+        <div class="login-div" >
+            <input class="login-input" type="tel" size="4" maxlength="4" name="code" formControlName="code" [ngClass]="{'login-invalid': !code.pristine && code.errors }">
+            <span class="login-span"></span><button type="submit" class="login-button" (click)="onCheckin()">获取验证码</button>
         </div>
+        <div class="login-div" ><button class="login-button" type="submit"  (click)="onLogin()">提交</button></div>
+        <!-- <div class="login-div" >
+            <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="/>
+        </div> -->
     </div>
 </div>

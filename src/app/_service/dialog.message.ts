@@ -1,9 +1,7 @@
 import { Message } from './message';
-import { HttpClient } from '@angular/common/http';
 
 export class DialogMessage extends Message {
-    protected http: HttpClient;
-    constructor(public from: any, public to: any, public info: string, public pass: Function = null, public fail: Function = null) {
+    constructor(public from: any, public to: any, public info: any, public pass: Function = null, public fail: Function = null) {
         super(from, to);
     };
     public success(param:any){

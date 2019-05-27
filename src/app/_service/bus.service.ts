@@ -34,7 +34,8 @@ export class BusService {
     receive(that: any, callback) {
             if(that && that.busService) {
                 return that.busService.getObservable().subscribe(message => {
-                    if(message && (message.to.name == that.constructor.name || message.to == that || message.to == that.constructor.name) ) {
+                    //console.log(message, message.to);
+                    if(message  && message.to && (message.to.name == that.constructor.name || message.to == that || message.to == that.constructor.name) ) {
                         callback.call(that, message);
                     }
                 });

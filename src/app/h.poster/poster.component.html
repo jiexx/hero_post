@@ -5,26 +5,61 @@
             第一步<span class="h6">编辑自己喜好式样</span>
         </p>
         <div class="row justify-content-center align-items-center" >
-            <div class="p-2 position-relative" >
-                <div class="h-100 w-100 position-absolute" (mouseenter) ="show = !show"  (mouseleave) ="show = !show">
+            <div class="p-2 position-relative" *ngFor="let p of posterManager.getPosters(); let i = index">
+                <div class="h-100 w-100 position-absolute" (mouseenter) ="posterManager.toggle(i)"  (mouseleave) ="posterManager.toggle(i)">
                     <div class="row h-100 justify-content-center align-items-center ">
-                        <a href="javascript:void(0)" (click)="onEdit()" *ngIf="show" [@enterAnimation]><span class="glyphicon-ring" ><em class="glyphicon glyphicon-pencil glyphicon-bordered" ></em></span></a>
+                        <a href="javascript:void(0)" (click)="onEdit(i)" *ngIf="posterManager.visible(i)" [@enterAnimation]>
+                            <span class="glyphicon-ring" ><em class="glyphicon glyphicon-pencil glyphicon-bordered" ></em></span>
+                        </a>
                     </div>
                 </div>
-                <img [src]="cover" class="img-thumbnail" style="height:300px"/>
+                <!-- <img [src]="sanitizer.bypassSecurityTrustResourceUrl(p)" class="img-thumbnail" style="width:200px" *ngIf="p.indexOf('!DOCTYPE svg')<0"/> -->
+                <div class="img-thumbnail" style="width:200px;height:300px" *ngIf="p.indexOf('<svg')<0"></div>
+                <div [innerHTML]="sanitizer.bypassSecurityTrustHtml(p)"class="img-thumbnail" style="width:200px" *ngIf="p.indexOf('<svg')>-1" ></div>
             </div>
-            <div class="p-2" *ngFor="let l of letter"><img [src]="l" class="img-thumbnail" style="height:300px" /></div>
+            <div class="p-2 position-relative">
+                <div class="h-100 w-100 position-absolute" (mouseenter) ="posterManager.toggle(posterManager.getPostersNum())"  (mouseleave) ="posterManager.toggle(posterManager.getPostersNum())">
+                    <div class="row h-100 justify-content-center align-items-center ">
+                        <a href="javascript:void(0)" (click)="onAppend(posterManager.getPostersNum())" *ngIf="posterManager.visible(posterManager.getPostersNum())" [@enterAnimation]>
+                            <span class="glyphicon-ring" ><em class="glyphicon glyphicon-plus glyphicon-bordered" ></em></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="img-thumbnail  bg-light" style="width:200px;height:300px"></div>
+            </div>
         </div>
         <p class="border-bottom font-weight-light h3 text-black-50">
-            第二步<span class="h6">回车邀请朋友</span>
+            第二步<span class="h6">扫码微信收单二维码</span>
         </p>
-        <tag-input [ngModel]="names" placeholder="姓名" secondaryPlaceholder="姓名" [editable]='true' (onRemove)="onNameRemove($event)"  (onAdd)="onNameAdd($event)" ></tag-input>
+        <tag-input [ngModel]="prices" placeholder="价格" secondaryPlaceholder="价格" [editable]='true' (onRemove)="onPriceRemove($event)"  (onAdd)="onPriceAdd($event)" ></tag-input>
+        <div class="row justify-content-center align-items-center" >
+            <div class="p-2 row">
+                <canvas #preview  class="img-thumbnail" style="width:200px;height:200px"></canvas>
+                <div class="position-relative">
+                    <a href="javascript:void(0)" class="btn btn-light" (click)="!scan ? startWebcam() : stopWebcam()">
+                        <em class="glyphicon glyphicon-play" *ngIf="!scan"></em><em class="glyphicon glyphicon-stop" *ngIf="scan"></em>
+                    </a>
+                    <br>
+                    <a href="javascript:void(0)" class="btn btn-light" *ngIf="scan" (click)="snapshot(preview)">
+                        <em class="glyphicon glyphicon-camera"></em>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <p class="border-bottom font-weight-light h3 text-black-50">
+            第三步<span class="h6">回车输入价格</span>
+        </p>
+        <tag-input [ngModel]="amounts" placeholder="价格" secondaryPlaceholder="价格" [editable]='true' (onRemove)="onAmountRemove($event)"  (onAdd)="onAmountAdd($event)" ></tag-input>
+        <p class="border-bottom font-weight-light h3 text-black-50">
+            第四步<span class="h6">回车输入描述</span>
+        </p>
+        <tag-input [ngModel]="names" placeholder="描述" secondaryPlaceholder="描述" [editable]='true' (onRemove)="onNameRemove($event)"  (onAdd)="onNameAdd($event)" ></tag-input>
         <div class="border-bottom font-weight-light h3 text-black-50 pt-5">
-            第三步<span class="h6">
+            第五步<span class="h6">
                 <em [ngClass]="{'text-primary glyphicon-check':selected=='mail', 'glyphicon-unchecked':selected!='mail'}" class="glyphicon glyphicon-unchecked pl-3" (click)="onSelect()"></em>线下邮寄
                 <em [ngClass]="{'text-primary glyphicon-check':selected=='ecard', 'glyphicon-unchecked':selected!='ecard'}" (click)="onSelect()" class="glyphicon glyphicon-unchecked pl-3"></em>电子卡片</span>
         </div>
         <p></p>
-        <button type="button" class="btn btn-light btn-block"><span class="font-weight-light h3 text-black-50">确认</span></button>
+        <button type="button" class="btn btn-light btn-block"  (click)="onConfirm()"><span class="font-weight-light h3 text-black-50">确认</span></button>
     </div>
 </div>

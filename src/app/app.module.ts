@@ -12,12 +12,14 @@ import { routing }        from './app.routing';
 import { BusService } from './_service/bus.service';
 import { DialogComponent } from './_helper/dialog.component';
 import { ImageComponent } from './_helper/image.component';
+import { PhotoComponent } from './_helper/photo.component';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './_helper/auth.guard';
 import { JwtInterceptor } from './_helper/jwt.interceptor';
 import { ErrorInterceptor } from './_helper/error.interceptor';
 import { TagInputModule } from 'ngx-chips';
+import { ColorPickerModule } from 'ngx-color-picker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; 
 import { ProfileComponent } from './my/profile.component';
 // import { OrderComponent } from './my/order.component';
@@ -33,47 +35,51 @@ import { NavbarComponent } from './_helper/navbar.component';
 import { DclWrapper } from './_helper/dcl.wrapper';
 import { PhoneComponent } from './_helper/phone.component';
 import { WelcomeComponent } from './home/welcome.component';
-import { PosterComponent } from './h.poster/poster.component';
-import { EditorComponent } from './h.poster/editor.component';
+/* import { PosterComponent } from './h.poster/poster.component';
+import { EditorComponent } from './h.poster/editor.component'; */
+import { ProductComponent } from './h.poster/product.component';
+
 
 
 @NgModule({
   declarations: [
     AppComponent,
     ImageComponent,
+    PhotoComponent,
     DialogComponent,
     // GridComponent,
     // GridActionComponent,
     // GridColumnVisiable,
     // GridColumnDetail,
-    LoginComponent,
     DclWrapper,
     HomeComponent,
     WelcomeComponent,
     ProfileComponent,
-    PosterComponent,
-    EditorComponent,
+    LoginComponent,
+   /*  PosterComponent, */
+   /*  EditorComponent, */
     //OrderComponent,
-    //ShareComponent,
+    ProductComponent,
     RegisterComponent,
     NavbarComponent,
-    PhoneComponent
+    PhoneComponent 
   ],
   imports: [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    PaginationModule.forRoot(),
+    /* PaginationModule.forRoot(), */
     routing,
     HttpClientModule,
-    BsDropdownModule.forRoot(),
+    /* BsDropdownModule.forRoot(), */
     ModalModule.forRoot(),
     // BsDatepickerModule.forRoot(),
     // CollapseModule.forRoot(),
     // CarouselModule.forRoot(),
-    TabsModule.forRoot(),
-    NgxSelectModule,
-    TagInputModule,
+    /* TabsModule.forRoot(), */
+    /* NgxSelectModule, */
+    /* TagInputModule, */
+   /*  ColorPickerModule, */
     BrowserAnimationsModule
   ],
   entryComponents: [ 
@@ -81,10 +87,11 @@ import { EditorComponent } from './h.poster/editor.component';
     NavbarComponent,
     WelcomeComponent,
     ProfileComponent,
-    PosterComponent,
-    EditorComponent,
+/*     PosterComponent,
+    EditorComponent, */
+    LoginComponent,
     //OrderComponent,
-    //ShareComponent,
+    ProductComponent,
     RegisterComponent
   ],
   providers: [BusService,ConfigService,HttpRequest,AuthGuard,

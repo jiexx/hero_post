@@ -11,6 +11,7 @@ export class DialogComponent implements OnInit {
 
     @ViewChild('dlg') dialog: ModalDirective;
 
+    img: string = null;
     info: string = '';
     fnConfirm: Function = null;
     fnDecline: Function = null;
@@ -20,7 +21,13 @@ export class DialogComponent implements OnInit {
     }
     ngOnInit() {
         this.busService.receive(this,msg => {
-            this.info = msg.info;
+            if(typeof msg.info == 'string'){
+                this.info = msg.info;
+            }else if(typeof msg.info == 'object'){
+                this.info = msg.info.info;
+                this.img = msg.info.img;
+            }
+            
             this.fnDecline = msg.fail;
             this.fnConfirm = msg.pass;
             this.dialog.show();
